@@ -26,12 +26,12 @@ var volumeCtrl = function() {
 // Control the BGM shuffle
 var bgmShuffle = function() {
     var randomBgm = 1;
-    while(randomBgm == bgmNum) {
+    while(randomBgm === bgmNum) {
         randomBgm = Math.floor(Math.random() * 4 + 1);
     }
     bgmNum = randomBgm;
     var bgmUrl = "sound/" + randomBgm + ".mp3";
-    if (bgmVolume == 1) {
+    if (bgmVolume === 1) {
         document.getElementById("bgm").src = bgmUrl;
     }
 };
@@ -58,20 +58,25 @@ Enemy.prototype.update = function(dt) {
 
     // If enemy run out of the canvas, randomly reset the position and speed
     if (this.x > 600) {
-        this.x = -100;
-        this.y = Math.floor(Math.random() * 3) * 85 + 60;
-        this.bugLine = (this.y - 60) / 85;
-        this.randomSpeed();
+        this.reset();
     }
     this.x = this.x + this.speed * dt;
 
     // Deal with collision
-    if (this.bugLine == player.playerLine && Math.abs(this.x - player.x) <= (blockWidth - collisionParam)) {
+    if (this.bugLine === player.playerLine && 
+        Math.abs(this.x - player.x) <= (blockWidth - collisionParam)) {
         var loseAudio = document.getElementById("lose");
         loseAudio.currentTime = 0;
         loseAudio.play();
         player.collision();
     }
+};
+
+Enemy.prototype.reset = function() {
+    this.x = -100;
+    this.y = Math.floor(Math.random() * 3) * 85 + 60;
+    this.bugLine = (this.y - 60) / 85;
+    this.randomSpeed();
 };
 
 // Draw the enemy on the screen, required method for game
@@ -100,14 +105,14 @@ var Player = function(initX, initY) {
     this.sprite = "images/char-boy.png";
 };
 
-Player.prototype.update = function() {
-//
-};
-
 Player.prototype.collision = function() {
     this.x = playerX;
     this.y = playerY;
     this.playerLine = (this.y - 48) / 83;
+};
+
+Player.prototype.update = function() {
+//
 };
 
 Player.prototype.render = function() {
