@@ -6,6 +6,35 @@ var rightBound = 400;
 var topBound = 48;
 var bottomBound = 380;
 var collisionParam = 45;
+var bgmVolume = 1;
+var bgmNum = 1;
+
+// Functions for the game
+// Control the BGM volume
+var volumeCtrl = function() {
+    if (bgm.paused) {
+        bgmVolume = 1;
+        bgm.play();
+        document.getElementById("volume").src = "images/volume_max.png";
+    } else {
+        bgmVolume = 0;
+        bgm.pause();
+        document.getElementById("volume").src = "images/volume_min.png";
+    }
+};
+
+// Control the BGM shuffle
+var bgmShuffle = function() {
+    var randomBgm = 1;
+    while(randomBgm == bgmNum) {
+        randomBgm = Math.floor(Math.random() * 4 + 1);
+    }
+    bgmNum = randomBgm;
+    var bgmUrl = "sound/" + randomBgm + ".mp3";
+    if (bgmVolume == 1) {
+        document.getElementById("bgm").src = bgmUrl;
+    }
+};
 
 // Enemies our player must avoid
 var Enemy = function(initX, initY, speed) {
@@ -33,13 +62,16 @@ Enemy.prototype.update = function(dt) {
         this.y = Math.floor(Math.random() * 3) * 85 + 60;
         this.bugLine = (this.y - 60) / 85;
         this.randomSpeed();
-    };
+    }
     this.x = this.x + this.speed * dt;
 
     // Deal with collision
     if (this.bugLine == player.playerLine && Math.abs(this.x - player.x) <= (blockWidth - collisionParam)) {
+        var loseAudio = document.getElementById("lose");
+        loseAudio.currentTime = 0;
+        loseAudio.play();
         player.collision();
-    };
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -69,12 +101,13 @@ var Player = function(initX, initY) {
 };
 
 Player.prototype.update = function() {
-//    
+//
 };
 
 Player.prototype.collision = function() {
     this.x = playerX;
     this.y = playerY;
+    this.playerLine = (this.y - 48) / 83;
 };
 
 Player.prototype.render = function() {
@@ -85,37 +118,39 @@ Player.prototype.handleInput = function(event) {
     if (event === "up") {
         if (this.y == topBound) {
             this.y = playerY;
-            //make sound
+            var winAudio = document.getElementById("win");
+            winAudio.currentTime = 0;
+            winAudio.play();
         } else {
             this.y = this.y - blockHeight;
-        };
+        }
         this.playerLine = (this.y - 48) / 83;
-    };
+    }
 
     if (event === "down") {
         if (this.y == bottomBound) {
             //make sound
         } else {
             this.y = this.y + blockHeight;
-        };
+        }
         this.playerLine = (this.y - 48) / 83;
-    };
+    }
 
     if (event === "left") {
         if (this.x == leftBound) {
             this.x = rightBound;
         } else {
             this.x = this.x - blockWidth;
-        };
-    };
+        }
+    }
 
     if (event === "right") {
         if (this.x == rightBound) {
             this.x = leftBound;
         } else {
             this.x = this.x + blockWidth;
-        };
-    };
+        }
+    }
 };
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -124,7 +159,7 @@ var allEnemies = [];
 for (var i = 0; i < 3; i++) {
     var tempSpeed = Math.floor(Math.random() * 3 + 2) * 70;
     allEnemies.push(new Enemy(0, 60 + 85 * i, tempSpeed));
-};
+}
 
 var player = new Player(playerX, playerY);
 
